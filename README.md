@@ -4,7 +4,7 @@ Khi bắt đầu với SwiftUI, Ta đã thấy có rất nhiều cách khác nha
 
 Nếu một object conforms to `Identifiable` protocol thì Swiftui sẽ tự động sử dụng `id` property cho việc [uniquing](https://ue.termwiki.com/UE/uniquing). Nếu ta không sử dụng `Identifiable` thì ta có thể sử dụng 1 keypath cho 1 property mà ta biết là duy nhất, chẳng hạn như số ISBN của một cuốn sách. Nhưng nếu ta không conform to `Identifiable` hoặc ta không có 1 keypath riêng biệt, ta có thể sử dụng `\.self`.
 
-Previously we used `\.self` for primitive types such as `Int` and `String`, like this:
+Ta đã quen sử dụng `\.self` cho các type cơ bản như `Int` and `String`, like this:
 
 ```Swift
     List {
@@ -14,23 +14,24 @@ Previously we used `\.self` for primitive types such as `Int` and `String`, like
     }
 ```
 
-With Core Data we can use a unique identifier if we want, but we can also use `\.self` and also have something that works well.
+Với Core Data ta có thể sử dụng 1 identifier duy nhất nếu ta muốn, nhưng ta cũng có thể sử dụng `\.self` nó cũng một phần hoạt động tốt.
 
-When we use `\.self` as an identifier, we mean “the whole object”, but in practice that doesn’t mean much – a struct is a struct, so it doesn’t have any sort of specific identifying information other than its contents. So what actually happens is that Swift computes the _hash value_ of the struct, which is a way of representing complex data in fixed-size values, then uses that hash as an identifier.
+Khi sử dụng `\.self` như một identifier, có nghĩa là “the whole object”, Nhưng điều đó không có nghĩa nhiều - a struct is a struct, vì vậy nó không có bất kỳ thông tin nhận dạng cụ thể nào ngoài content của nó. Vì vậy bản chất ở đây là Swift đã tính toán  *hash value* của struct, nghĩa là cách thể hiện của dữ liệu phức tạp trong *fixed-size values*, sau đó sử dụng hash như một identifier.
 
-Hash values can be generated in any number of ways, but the concept is identical for all hash-generating functions:
+Hash values có thể được tạo theo bất kỳ cách nào, nhưng ý tưởng của tất cả hash-generating đều giống nhau:
 
-1.  Regardless of the input size, the output should be the same fixed size.
-2.  Calculating the same hash for an object twice in a row should return the same value.
+1. Bất kể kích thước đầu vào như thế nào đầu ra phải phải có cùng kích thước cố định.
+2. Tính toán cùng một hash cho một object 2 lần liên tiếp sẽ trả về cùng một giá trị.
 
-Those two sound simple, but think about it: if we get the hash of “Hello World” and the hash of the complete works of Shakespeare, both will end up being the same size. This means it’s not possible to convert the hash back into its original value – we can’t convert 40 seemingly random hexadecimal letters and numbers into the complete works of Shakespeare.
+Ví dụ: nếu ta lấy hash của “Hello World” và hash của tác phầm hoàn chỉnh của Shakespeare, cả 2 sẽ có cùng 1 kích thước. Điều này có nghĩa là không thể covert hash về giá trị bạn đầu của nó – ta không thể convert 40 như chữ cái thập phân và chữ số về tác phẩm hoàn chỉnh của Shakespeare.
 
-Hashes are commonly used for things like data verification. For example, if you download a 8GB zip file, you can check that it’s correct by comparing your local hash of that file against the server’s – if they match, it means the zip file is identical. Hashes are also used with dictionary keys and sets; that’s how they get their fast look up.
+Hash thường được sử dụng cho việc xác minh dữ liệu. Ví dụ, nếu bạn download 8GB zip file, bạn có thể check xem nó có đúng không bằng cách so sánh với local hash của tệp đó với trên sever – nếu nó giống nhau, nghĩa là tệp zip đó giống hệt nhau. Hashe cũng được sử dụng với dictionary keys and sets.
 
-All this matters because when Xcode generates a class for our managed objects, it makes that class conform to `Hashable`, which is a protocol that means Swift can generate hash values for it, which in turn means we can use `\.self` for the identifier. This is also why `String` and `Int` work with `\.self`: they also conform to `Hashable`.
+Tất cả điều trên đều quan trọng vì khi xcode tạo ra class để quản lý object, nó làm class conform to `Hashable`, protocol giúp Swift có thể tạo hash value cho nó, điều đó có nghĩa là chúng ta có thể sử dụng `\.self` để định danh cho class. Đây là lý do tại sao `String` và `Int` hoạt động được với `\.self`: nó cũng conform to `Hashable`.
 
-`Hashable` is a bit like `Codable`: if we want to make a custom type conform to `Hashable`, then as long as everything it contains also conforms to `Hashable` then we don’t need to do any work. To demonstrate this, we could create a custom struct that conforms to `Hashable` rather than `Identifiable`, and use `\.self` to identify it:
+`Hashable` có một chút giống `Codable`: Nếu chúng ta muốn tạo custom type conform to `Hashable`, thì mọi thứ nó chứa cũng conforms to `Hashable`, ta không cần làm thêm gì nữa. Để chứng minh, ta có thể tạo custom struct that conforms to `Hashable` thay vì `Identifiable`, và sử dụng `\.self` để xác định nó:
 
+```Swift
     struct Student: Hashable {
         let name: String
     }
@@ -44,13 +45,12 @@ All this matters because when Xcode generates a class for our managed objects, i
             }
         }
     }
+```
 
-We can make `Student` conform to `Hashable` because all its properties already conform to `Hashable`, so Swift will calculate the hash values of each property then combine them into one hash that represents the whole struct. Of course, if we end up with two students that have the same name we’ll hit problems, just like if we had an array of strings with two identical strings.
+Ta tạo struct `Student` conform to `Hashable` vì tất cả các properties của nó đã conform to `Hashable`, Swift sẽ tính toán hash values của từng property sau đó kết hợp chúng thành một hash đại diện cho toàn bộ struct. Tất nhiên, nếu chúng ta kết thúc với hai sinh viên có cùng tên, chúng ta sẽ gặp vấn đề, giống như nếu chúng ta có một array String với hai String hệt nhau.
 
-Now, you might think this leads to a problem: if we create two Core Data objects with the same values, they’ll generate the same hash, and we’ll hit animation problems. However, Core Data does something really smart here: the objects it creates for us actually have a selection of other properties beyond those we defined in our data model, including one called the object ID – an identifier that is unique to that object, regardless of what properties it contains. These IDs are similar to `UUID`, although Core Data generates them sequentially as we create objects.
+Bây giờ, bạn có thể nghĩ rằng điều này dẫn đến một vấn đề: nếu ta tạo 2 Core Data objects với value giống nhau, nó sẽ tạo ra hash giống nhau, ta sẽ gặp sự cố khi làm việc với animation. Tuy nhiên, Core Data khá là thông mình: các objects mà nó tạo cho chúng ta thực ra là một lựa chọn khác của properties ngoài tầm mà ta định nghĩa trong our data model, bao gồm một thứ được gọi là object ID – một identifier duy nhất của object, bất kể nó chứa properties nào. IDs đó tương tự như một `UUID`, Core Data tạo ra chúng tuần tự khi chúng ta tạo ra các object.
 
-So, `\.self` works for anything that conforms to `Hashable`, because Swift will generate the hash value for the object and use that to uniquely identify it. This also works for Core Data’s objects because they already conform to `Hashable`. So, if you want to use a specific identifier that’s awesome, but you don’t need to because `\.self` is also an option.
+Vì thế, `\.self` hoạt động với bất cứ thứ gì conforms to `Hashable`, vì Swift sẽ tạo hash value cho object và sử dụng nó để định danh nó. Nó cũng hoạt động Core Data’s objects vì nó cũng conform to `Hashable`. vì vậy, Nếu bạn muốn sử dụng một identifier cụ thể điều đó rất tốt, nhưng bạn không cần tạo vì `\.self` cũng là một option tốt.
 
-**Warning:** Although calculating the same hash for an object twice in a row should return the same value, calculating it between two runs of your app – i.e., calculating the hash, quitting the app, relaunching, then calculating the hash again – can return different values.
-
-[](https://www.emergetools.com/blog?utm_source=hws&utm_medium=sponsor&utm_campaign=emerge)
+**Warning:** Mặc dù việc tính toán cùng hash cho 1 object 2 lần một lúc có thể trả về value giống nhau, tính toán nó giữa hai lần chạy ứng dụng của bạn (vd, tính toán hash, tắt ứng dụng, khởi động lại ứng dụng, tính toán lại hash lại lần nữa) có thể hash giữa hai lần sẽ khác nhau.
