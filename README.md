@@ -54,3 +54,23 @@ Bây giờ, bạn có thể nghĩ rằng điều này dẫn đến một vấn �
 Vì thế, `\.self` hoạt động với bất cứ thứ gì conforms to `Hashable`, vì Swift sẽ tạo hash value cho object và sử dụng nó để định danh nó. Nó cũng hoạt động Core Data’s objects vì nó cũng conform to `Hashable`. vì vậy, Nếu bạn muốn sử dụng một identifier cụ thể điều đó rất tốt, nhưng bạn không cần tạo vì `\.self` cũng là một option tốt.
 
 **Warning:** Mặc dù việc tính toán cùng hash cho 1 object 2 lần một lúc có thể trả về value giống nhau, tính toán nó giữa hai lần chạy ứng dụng của bạn (vd, tính toán hash, tắt ứng dụng, khởi động lại ứng dụng, tính toán lại hash lại lần nữa) có thể hash giữa hai lần sẽ khác nhau.
+
+<h2>Identifiable</h2>
+Ngoài việc sử dụng `\.self` ta cũng có thể sử dụng thêm protocol `Identifiable` thay thế cho việc đăng ký id. Tất cả những gì ta cần làm đó là add `Identifiable` vào list protocol mà struct của ta cần conform theo. Đây là một protocol của Swift, giúp nó xác định được type của struct là duy nhất. Nó chỉ có một yêu cầu đó là phải có một property có tên là `id` chứa một định danh duy nhất. ví dụ:
+
+```Swift
+struct ExpenseItem: Identifiable {
+    let id = UUID()
+    let name: String
+    let type: String
+    let amount: Int
+}
+```
+Bây giờ, bạn có thể tự hỏi tại sao chúng tôi phải thêm điều đó, bởi vì code đã hoạt động tốt trước đây rồi. Bởi vì *ExpenseItem* giờ dây đã được đảm là có thể xác định duy nhất, ta sẽ không cần phải báo cho `List` property nào sẽ được dùng để định danh, nó sẽ biết có một property `id` và nó là duy nhất. Đó là mấu chốt của protocol `Identifiable`.
+Do đó ta có thể viết lại như sau:
+
+```Swift
+List(expenseItems) { item in
+    Text(item.name)
+}
+```
