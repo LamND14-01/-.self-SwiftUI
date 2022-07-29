@@ -37,7 +37,7 @@ Tất cả điều trên đều quan trọng vì khi xcode tạo ra class để 
     }
     
     struct ContentView: View {
-        let students = [Student(name: "Harry Potter"), Student(name: "Hermione Granger")]
+        let students = [Student(name: "Lamnd14"), Student(name: "HungNQ37")]
     
         var body: some View {
             List(students, id: \.self) { student in
@@ -59,11 +59,10 @@ Vì thế, `\.self` hoạt động với bất cứ thứ gì conforms to `Hasha
 Ngoài việc sử dụng `\.self` ta cũng có thể sử dụng thêm protocol `Identifiable` thay thế cho việc đăng ký id. Tất cả những gì ta cần làm đó là add `Identifiable` vào list protocol mà struct của ta cần conform theo. Đây là một protocol của Swift, giúp nó xác định được type của struct là duy nhất. Nó chỉ có một yêu cầu đó là phải có một property có tên là `id` chứa một định danh duy nhất. ví dụ:
 
 ```Swift
-struct ExpenseItem: Identifiable {
+struct Student: Identifiable {
     let id = UUID()
     let name: String
-    let type: String
-    let amount: Int
+    let age: Int
 }
 ```
 Bây giờ, bạn có thể tự hỏi tại sao chúng tôi phải thêm điều đó, bởi vì code đã hoạt động tốt trước đây rồi. Bởi vì *ExpenseItem* giờ dây đã được đảm là có thể xác định duy nhất, ta sẽ không cần phải báo cho `List` property nào sẽ được dùng để định danh, nó sẽ biết có một property `id` và nó là duy nhất. Đó là mấu chốt của protocol `Identifiable`.
